@@ -1,7 +1,7 @@
 # Lab 25B — Report
 
 **Họ tên / nhóm:** Đinh Mạnh Dũng — **MSV:** 2A202602975  
-**Commit:** `51bc852a0559e3759eb1a4277a097260ed310639` (commit code, cấu hình và kết quả kiểm chứng).  
+**Commit:** `b238648`
 **Điểm tự động:** **84 / 88** với seed **25, 26, 27**; 4 điểm SLO hidden chưa có dữ liệu để chấm. Report/postmortem: giảng viên chấm riêng /12.
 
 Môi trường kiểm chứng: Windows, Python 3.11. Các bảng chi tiết và thí nghiệm dùng seed 25; scoreboard dùng cả ba seed. File nguồn: [Game Day naive](gameday/naive.json), [Game Day resilient](gameday/resilient.json), [workflows](workflows.json), [SLO](slo.json), [cache](cache/cached.json), [thí nghiệm](experiments.json), [scoreboard](scoreboard.json). Thời gian và chi phí là đơn vị mô phỏng; chi phí không phải USD. Dữ liệu/băng ẩn của giảng viên chưa được kiểm chứng.
