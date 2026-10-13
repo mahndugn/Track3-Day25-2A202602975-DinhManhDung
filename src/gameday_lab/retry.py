@@ -26,14 +26,24 @@ class FullJitterBackoff:
         self.rng = rng or random.Random(0)
 
     def delay(self, retry_number: int, retry_after: float | None = None) -> float:
-        """TODO(student).
+        """Implementation: .
 
         * raise ValueError if retry_number < 1
         * with retry_after:    retry_after + rng.uniform(0, base_s)
         * without retry_after: rng.uniform(0, min(cap_s, base_s * 2 ** (retry_number - 1)))
         Use ``self.rng`` (seeded) — never the global ``random`` module.
         """
-        raise NotImplementedError("TODO(student): FullJitterBackoff.delay()")
+        if retry_number < 1:
+            raise ValueError("retry_number must be at least 1")
+        if retry_after is not None:
+            return max(0.0, retry_after) + self.rng.uniform(0.0, self.base_s)
+        # Saturate before exponentiation to handle arbitrarily large retry numbers.
+        ceiling = self.base_s
+        for _ in range(retry_number - 1):
+            if ceiling >= self.cap_s:
+                break
+            ceiling *= 2
+        return self.rng.uniform(0.0, min(self.cap_s, ceiling))
 
 
 class RetryBudget:
@@ -57,9 +67,20 @@ class RetryBudget:
         self._last: float | None = None  # virtual time of the previous call
 
     def record_request(self, now: float) -> None:
-        """TODO(student): refill by time elapsed since the previous call, then deposit ``ratio``."""
-        raise NotImplementedError("TODO(student): RetryBudget.record_request()")
+        """Implementation: refill by time elapsed since the previous call, then deposit ``ratio``."""
+        self._refill(now)
+        self.tokens = min(self.max_tokens, self.tokens + self.ratio)
 
     def try_acquire_retry(self, now: float) -> bool:
-        """TODO(student): refill by time elapsed; if tokens >= 1, take one and return True."""
-        raise NotImplementedError("TODO(student): RetryBudget.try_acquire_retry()")
+        """Implementation: refill by time elapsed; if tokens >= 1, take one and return True."""
+        self._refill(now)
+        if self.tokens + 1e-12 < 1.0:
+            return False
+        self.tokens = max(0.0, self.tokens - 1.0)
+        return True
+
+    def _refill(self, now: float) -> None:
+        if self._last is not None:
+            elapsed = max(0.0, now - self._last)
+            self.tokens = min(self.max_tokens, self.tokens + elapsed * self.min_per_s)
+        self._last = now if self._last is None else max(self._last, now)
